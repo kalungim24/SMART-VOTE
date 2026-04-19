@@ -1,0 +1,24 @@
+[22-Nov-2025 12:23:07 Africa/Kampala] PHP Warning:  Undefined variable $adminId in /home2/oppemsys/vote.oppem-sys.com/admin/settings.php on line 61
+[22-Nov-2025 12:23:07 Africa/Kampala] PHP Warning:  Undefined variable $adminId in /home2/oppemsys/vote.oppem-sys.com/admin/settings.php on line 63
+[22-Nov-2025 12:24:25 Africa/Kampala] RateLimiter: checkLimit error - SQLSTATE[HY000]: General error: 1364 Field 'id' doesn't have a default value
+[22-Nov-2025 12:24:25 Africa/Kampala] SecurityManager: recordLoginAttempt error - SQLSTATE[HY000]: General error: 1366 Incorrect integer value: '' for column 'success' at row 1
+[22-Nov-2025 15:15:22 Africa/Kampala] PHP Warning:  Undefined variable $security in /home2/oppemsys/vote.oppem-sys.com/admin/manage_admins.php on line 224
+[22-Nov-2025 15:15:22 Africa/Kampala] PHP Fatal error:  Uncaught Error: Call to a member function generateCSRFToken() on null in /home2/oppemsys/vote.oppem-sys.com/admin/manage_admins.php:224
+Stack trace:
+#0 {main}
+  thrown in /home2/oppemsys/vote.oppem-sys.com/admin/manage_admins.php on line 224
+[22-Nov-2025 15:17:51 Africa/Kampala] PHP Warning:  Undefined variable $security in /home2/oppemsys/vote.oppem-sys.com/admin/manage_admins.php on line 225
+[22-Nov-2025 15:17:51 Africa/Kampala] PHP Fatal error:  Uncaught Error: Call to a member function generateCSRFToken() on null in /home2/oppemsys/vote.oppem-sys.com/admin/manage_admins.php:225
+Stack trace:
+#0 {main}
+  thrown in /home2/oppemsys/vote.oppem-sys.com/admin/manage_admins.php on line 225
+[22-Nov-2025 15:24:13 Africa/Kampala] PHP Deprecated:  round(): Passing null to parameter #1 ($num) of type int|float is deprecated in /home2/oppemsys/vote.oppem-sys.com/includes/data_encryption.php on line 484
+[22-Nov-2025 15:24:13 Africa/Kampala] AuditLogger: getAuditStatistics error - SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')
+                GROUP BY action_category, result
+                ORDER BY ac' at line 7
+[22-Nov-2025 16:20:47 Africa/Kampala] PHP Deprecated:  round(): Passing null to parameter #1 ($num) of type int|float is deprecated in /home2/oppemsys/vote.oppem-sys.com/includes/data_encryption.php on line 484
+[22-Nov-2025 16:20:47 Africa/Kampala] AuditLogger: getAuditStatistics error - SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')
+                GROUP BY action_category, result
+                ORDER BY ac' at line 7
+[22-Nov-2025 16:21:13 Africa/Kampala] SecurityManager: recordLoginAttempt error - SQLSTATE[HY000]: General error: 1366 Incorrect integer value: '' for column 'success' at row 1
+[22-Nov-2025 16:33:47 Africa/Kampala] SecurityManager: recordLoginAttempt error - SQLSTATE[HY000]: General error: 1366 Incorrect integer value: '' for column 'success' at row 1

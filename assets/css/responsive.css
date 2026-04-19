@@ -1,0 +1,130 @@
+/* Responsive Utilities for SmartVote */
+
+/* Mobile-first responsive adjustments */
+@media (max-width: 640px) {
+    /* Tables - Stack on mobile or use horizontal scroll */
+    .responsive-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Cards - Reduce padding on mobile */
+    .responsive-card {
+        padding: 1rem;
+    }
+    
+    /* Forms - Stack fields on mobile */
+    .responsive-form-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Buttons - Full width on mobile */
+    .responsive-button-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .responsive-button-group button,
+    .responsive-button-group a {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Table responsive wrapper */
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: -1rem;
+    padding: 1rem;
+}
+
+@media (min-width: 768px) {
+    .table-wrapper {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+/* Mobile menu animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.sidebar-open {
+    animation: slideIn 0.3s ease-out;
+}
+
+.overlay-visible {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive text sizes */
+@media (max-width: 640px) {
+    .responsive-h1 {
+        font-size: 1.5rem;
+        line-height: 2rem;
+    }
+    
+    .responsive-h2 {
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+    }
+    
+    .responsive-h3 {
+        font-size: 1.125rem;
+        line-height: 1.5rem;
+    }
+}
+
+/* Responsive spacing */
+@media (max-width: 640px) {
+    .responsive-spacing {
+        margin-bottom: 1rem;
+    }
+    
+    .responsive-spacing-lg {
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Hide elements on mobile */
+@media (max-width: 640px) {
+    .hide-mobile {
+        display: none !important;
+    }
+}
+
+/* Show only on mobile */
+.show-mobile {
+    display: none !important;
+}
+
+@media (max-width: 640px) {
+    .show-mobile {
+        display: block !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
+

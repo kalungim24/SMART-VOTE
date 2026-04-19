@@ -1,0 +1,80 @@
+# Redirect duplicate admin directory access
+RewriteEngine On
+RewriteRule ^admin/(.*)$ /SmartVote/admin/$1 [R=301,L]
+
+# Handle incorrect admin/admin/ URLs
+RewriteRule ^admin/admin/(.*)$ /SmartVote/admin/$1 [R=301,L]
+RewriteRule ^admin/admin$ /SmartVote/admin/ [R=301,L]
+
+# Security headers
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options nosniff
+  Header always set X-Frame-Options SAMEORIGIN
+  Header always set Referrer-Policy strict-origin-when-cross-origin
+</IfModule>
+
+# Prevent direct access to sensitive files
+<Files "*.php">
+  Order Deny,Allow
+  Deny from all
+</Files>
+
+<Files "index.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "dashboard.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "manage_*.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "view_*.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "settings.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "backup_*.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "download_*.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "ajax_*.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "status_*.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "enhanced_*.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "security_*.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "clear_*.php">
+  Order Allow,Deny
+  Allow from all
+</Files>

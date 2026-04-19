@@ -1,0 +1,45 @@
+# Redirect duplicate voter directory access
+RewriteEngine On
+RewriteRule ^voter/(.*)$ /SmartVote/voter/$1 [R=301,L]
+
+# Handle incorrect voter/voter/ URLs
+RewriteRule ^voter/voter/(.*)$ /SmartVote/voter/$1 [R=301,L]
+RewriteRule ^voter/voter$ /SmartVote/voter/ [R=301,L]
+
+# Security headers
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options nosniff
+  Header always set X-Frame-Options SAMEORIGIN
+  Header always set Referrer-Policy strict-origin-when-cross-origin
+</IfModule>
+
+# Prevent direct access to sensitive files
+<Files "*.php">
+  Order Deny,Allow
+  Deny from all
+</Files>
+
+<Files "index.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "dashboard.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "cast_vote.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "results.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files "confirmation.php">
+  Order Allow,Deny
+  Allow from all
+</Files>
