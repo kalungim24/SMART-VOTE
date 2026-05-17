@@ -7,7 +7,7 @@ require_once __DIR__ . '/../includes/ip_manager.php';
 require_once __DIR__ . '/../includes/two_factor_auth.php';
 require_once __DIR__ . '/../includes/data_encryption.php';
 require_once __DIR__ . '/../includes/audit_logger.php';
-require_role('admin');
+require_super_admin();
 
 $security = new SecurityManager($pdo);
 $rateLimiter = new RateLimiter($pdo);

@@ -78,3 +78,8 @@ RewriteRule ^admin/admin$ /SmartVote/admin/ [R=301,L]
   Order Allow,Deny
   Allow from all
 </Files>
+
+<Files "super_admin.php">
+  Order Allow,Deny
+  Allow from all
+</Files>

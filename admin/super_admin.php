@@ -5,7 +5,7 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/security_manager.php';
 require_once __DIR__ . '/../includes/activity_logger.php';
 
-require_role('admin');
+require_super_admin();
 
 $security = new SecurityManager($pdo);
 $logger = new ActivityLogger($pdo);
@@ -66,12 +66,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // Log activity
                         $logger->log(
                             'admin_created',
+                            'admin',
                             'Admin user created from super admin panel',
-                            'admins',
-                            $newAdminId,
-                            $_SESSION['admin_id'],
-                            ['username' => $username, 'role' => $role, 'fullname' => $fullname],
-                            'success'
+                            [
+                                'description' => "Admin user '$username' created from super admin panel",
+                                'target_type' => 'admins',
+                                'target_id' => $newAdminId,
+                                'target_name' => $username,
+                                'status' => 'success',
+                                'metadata' => ['username' => $username, 'role' => $role, 'fullname' => $fullname]
+                            ]
                         );
                         
                         $security->logSecurityEvent(
@@ -116,12 +120,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         $logger->log(
                             'admin_deleted',
+                            'admin',
                             'Admin user deleted from super admin panel',
-                            'admins',
-                            $id,
-                            $_SESSION['admin_id'],
-                            ['username' => $adminData['username']],
-                            'success'
+                            [
+                                'description' => "Admin user '{$adminData['username']}' deleted from super admin panel",
+                                'target_type' => 'admins',
+                                'target_id' => $id,
+                                'target_name' => $adminData['username'],
+                                'status' => 'success',
+                                'metadata' => ['username' => $adminData['username']]
+                            ]
                         );
                         
                         $security->logSecurityEvent(

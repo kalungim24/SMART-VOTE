@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/backup_helper.php';
 require_once __DIR__ . '/../includes/activity_logger.php';
-require_role('admin');
+require_super_admin();
 
 // Initialize activity logger
 $activityLogger = new ActivityLogger($pdo);

@@ -23,6 +23,17 @@ function isActive($item, $currentPage, $isDashboard = false) {
     return basename($item['url']) === $currentPage;
 }
 
+function getCurrentUserRole() {
+    return $_SESSION['user_role'] ?? $_SESSION['role'] ?? null;
+}
+
+function isMenuVisible($item, $userRole) {
+    if (!isset($item['roles']) || !is_array($item['roles'])) {
+        return true;
+    }
+    return in_array($userRole, $item['roles'], true);
+}
+
 /**
  * Generate menu item HTML
  */
@@ -87,15 +98,20 @@ function renderLogout($logoutConfig) {
   
   <!-- Navigation -->
   <nav class="p-3 text-sm space-y-1">
+    <?php $currentRole = getCurrentUserRole(); ?>
     <?php foreach ($sidebarConfig['main_menu'] as $item): ?>
-      <?php echo renderMenuItem($item, $current_page, $is_dashboard); ?>
+      <?php if (isMenuVisible($item, $currentRole)): ?>
+        <?php echo renderMenuItem($item, $current_page, $is_dashboard); ?>
+      <?php endif; ?>
     <?php endforeach; ?>
     
     <!-- Divider -->
     <div class="my-4 border-t border-slate-700"></div>
     
     <?php foreach ($sidebarConfig['settings_menu'] as $item): ?>
-      <?php echo renderMenuItem($item, $current_page, $is_dashboard); ?>
+      <?php if (isMenuVisible($item, $currentRole)): ?>
+        <?php echo renderMenuItem($item, $current_page, $is_dashboard); ?>
+      <?php endif; ?>
     <?php endforeach; ?>
     
     <!-- Logout -->

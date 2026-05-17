@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
-require_role('admin');
+require_super_admin();
 
 $filename = $_GET['file'] ?? '';
 $backup_dir = __DIR__ . '/../backups/';

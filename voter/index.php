@@ -22,6 +22,10 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'voter') {
   exit;
 }
 
+// Redirect to unified login page for unauthenticated users
+header('Location: ../login.php');
+exit;
+
 $error = '';
 $success = '';
 

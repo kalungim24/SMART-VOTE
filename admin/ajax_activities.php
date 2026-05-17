@@ -6,7 +6,7 @@
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/activity_logger.php';
-require_role('admin');
+require_super_admin();
 
 // Set JSON response header
 header('Content-Type: application/json');

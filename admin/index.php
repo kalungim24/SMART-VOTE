@@ -47,7 +47,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         $security->recordLoginAttempt($username, 'admin', false);
     } else {
         try {
-            $stmt = $pdo->prepare("SELECT id, username, password, fullname FROM admins WHERE username = ?");
+            $stmt = $pdo->prepare("SELECT id, username, password, fullname, role FROM admins WHERE username = ?");
             $stmt->execute([$username]);
             $admin = $stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -59,8 +59,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 $_SESSION['admin_id'] = $admin['id'];
                 $_SESSION['username'] = $admin['username'];
                 $_SESSION['fullname'] = $admin['fullname'];
-                $_SESSION['user_role'] = 'admin';
-                $_SESSION['role'] = 'admin'; // For compatibility
+                $_SESSION['user_role'] = $admin['role'] ?? 'admin';
+                $_SESSION['role'] = $admin['role'] ?? 'admin'; // For compatibility
                 
                 regen_session_id();
                 header('Location: dashboard.php');
@@ -78,11 +78,14 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     }
 }
 
-// If already logged in, redirect to dashboard
-if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+// Redirect to unified login if not already authenticated as admin
+if (isset($_SESSION['user_role']) && ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'super_admin')) {
     header('Location: dashboard.php');
     exit;
 }
+
+header('Location: ../login.php');
+exit;
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -7,7 +7,7 @@
 
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/db_connect.php';
-require_role('admin');
+require_super_admin();
 
 $message = '';
 $messageType = '';

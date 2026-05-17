@@ -87,7 +87,12 @@ function require_role(string $role): void {
                        isset($_SESSION['voter_id']) ||
                        isset($_SESSION['voter_pk']));
     
-    if (!$hasValidSession || $userRole !== $role) {
+    $allowedRoles = [$role];
+    if ($role === 'admin') {
+        $allowedRoles = ['admin', 'super_admin'];
+    }
+    
+    if (!$hasValidSession || !in_array($userRole, $allowedRoles, true)) {
         // Clear any problematic session data that might cause loops
         if (isset($_SESSION['admin_logged_in'])) {
             unset($_SESSION['admin_logged_in']);
@@ -140,5 +145,39 @@ function require_role(string $role): void {
     if (isset($_SESSION['last_activity'])) {
         $_SESSION['last_activity'] = time();
     }
+}
+
+function require_super_admin(): void {
+    // If a regular admin is logged in, send them back to the admin area
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+
+    $userRole = $_SESSION['user_role'] ?? $_SESSION['role'] ?? null;
+    $hasValidSession = isset($userRole) && 
+                      (isset($_SESSION['user_id']) || 
+                       isset($_SESSION['admin_id']) || 
+                       isset($_SESSION['voter_id']) ||
+                       isset($_SESSION['voter_pk']));
+
+    if ($hasValidSession && $userRole === 'admin') {
+        // Regular admin tried to access a super-admin page — redirect to admin index
+        // Use relative redirect so it works both from /admin/* and other locations
+        $currentScript = $_SERVER['SCRIPT_NAME'] ?? '';
+        if (strpos($currentScript, '/admin/') !== false) {
+            header('Location: index.php');
+        } else {
+            $basePath = dirname(dirname($_SERVER['SCRIPT_NAME']));
+            if ($basePath === '/' || $basePath === '\\') {
+                header('Location: /admin/index.php');
+            } else {
+                header('Location: ' . $basePath . '/admin/index.php');
+            }
+        }
+        exit;
+    }
+
+    // For all other cases, fall back to role enforcement (this will redirect to login if unauthenticated)
+    require_role('super_admin');
 }
 
