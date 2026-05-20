@@ -1,6 +1,6 @@
 <?php
 /**
- * SmartVote Enhanced Audit Logging System
+ * SmartLonda Enhanced Audit Logging System
  * Comprehensive audit trail with detailed tracking and compliance features
  */
 

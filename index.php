@@ -1,6 +1,6 @@
 <?php
 /**
- * SmartVote System - Main Entry Point
+ * SmartLonda System - Main Entry Point
  * Redirects users to appropriate login page
  */
 

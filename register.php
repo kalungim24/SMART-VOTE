@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartVote System – School Online Voting</title>
+  <title><?php echo h(get_system_name($pdo)); ?> System – School Online Voting</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: { brand: '#0ea5e9' }}} }
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </head>
 <body class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
   <div class="w-full max-w-xl bg-white shadow rounded-xl p-4 sm:p-6">
-    <h1 class="text-xl sm:text-2xl font-bold text-slate-800 text-center">SmartVote System – School Online Voting</h1>
+    <h1 class="text-xl sm:text-2xl font-bold text-slate-800 text-center"><?php echo h(get_system_name($pdo)); ?> System – School Online Voting</h1>
     <p class="mt-2 text-sm sm:text-base text-center text-slate-600">Optional Voter Registration</p>
     <?php if ($message): ?><div class="mt-3 p-3 text-sm rounded <?php echo strpos($message, 'successful')!==false ? 'bg-emerald-50 text-emerald-700':'bg-red-50 text-red-700'; ?>"><?php echo h($message); ?></div><?php endif; ?>
     <form method="post" class="mt-4 grid gap-3">

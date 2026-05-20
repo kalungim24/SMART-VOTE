@@ -1,6 +1,6 @@
 <?php
 /**
- * SmartVote IP Management System
+ * SmartLonda IP Management System
  * Handles IP whitelisting, blacklisting, and geolocation-based access control
  */
 

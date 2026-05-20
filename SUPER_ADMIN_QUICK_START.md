@@ -25,7 +25,7 @@ mysql -u root -p smart_vote < database/migration_add_admin_roles.sql
 ```
 
 ### Step 2: Access the Panel
-1. Log in to SmartVote Admin
+1. Log in to SmartLonda Admin
 2. Click **Super Admin Panel** in the sidebar (under "Security Dashboard")
 3. Start creating admin accounts!
 

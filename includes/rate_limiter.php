@@ -1,6 +1,6 @@
 <?php
 /**
- * SmartVote Rate Limiter
+ * SmartLonda Rate Limiter
  * Prevents API abuse, DoS attacks, and excessive resource usage
  */
 

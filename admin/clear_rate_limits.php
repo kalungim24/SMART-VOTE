@@ -75,7 +75,7 @@ $blockedIPs = $pdo->query("
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clear Rate Limits - SmartVote Admin</title>
+    <title>Clear Rate Limits - <?php echo h(get_system_name($pdo)); ?> Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">

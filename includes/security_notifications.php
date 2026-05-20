@@ -1,6 +1,6 @@
 <?php
 /**
- * SmartVote Security Notification System
+ * SmartLonda Security Notification System
  * Sends email alerts for security events and threats
  */
 
@@ -33,7 +33,7 @@ class SecurityNotifications {
                 // Assume admin emails follow pattern: username@domain.com
                 // In production, add email field to admins table
                 $this->adminEmails[] = [
-                    'email' => $admin['username'] . '@smartvote.system',
+                    'email' => $admin['username'] . '@' . get_system_email_domain(),
                     'name' => $admin['fullname']
                 ];
             }
@@ -325,19 +325,20 @@ class SecurityNotifications {
         
         $color = $severityColors[$severity] ?? '#6B7280';
         
-        $emailSubject = "[SmartVote Security] $subject";
+        $systemName = get_system_name($this->pdo);
+        $emailSubject = "[{$systemName} Security] $subject";
         
         $emailBody = "
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset='UTF-8'>
-            <title>SmartVote Security Alert</title>
+            <title>{$systemName} Security Alert</title>
         </head>
         <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
             <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
                 <div style='background: linear-gradient(135deg, $color 0%, " . $this->darkenColor($color) . " 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0;'>
-                    <h1 style='margin: 0; font-size: 24px;'>🛡️ SmartVote Security Alert</h1>
+                    <h1 style='margin: 0; font-size: 24px;'>🛡️ {$systemName} Security Alert</h1>
                     <p style='margin: 5px 0 0 0; opacity: 0.9;'>Severity: " . strtoupper($severity) . "</p>
                 </div>
                 
@@ -361,7 +362,7 @@ class SecurityNotifications {
                         </tr>
                         <tr>
                             <td style='padding: 8px; border-bottom: 1px solid #eee; font-weight: bold;'>System:</td>
-                            <td style='padding: 8px; border-bottom: 1px solid #eee;'>SmartVote Digital Voting Platform</td>
+                            <td style='padding: 8px; border-bottom: 1px solid #eee;'>{$systemName} Digital Voting Platform</td>
                         </tr>";
         
         foreach ($eventData as $key => $value) {
@@ -377,7 +378,7 @@ class SecurityNotifications {
                 </div>
                 
                 <div style='background: #f8f9fa; padding: 15px; border-radius: 0 0 8px 8px; text-align: center; font-size: 12px; color: #6c757d;'>
-                    <p>This is an automated security alert from SmartVote system.</p>
+                    <p>This is an automated security alert from {$systemName} system.</p>
                     <p>Please review the Security Dashboard for more details.</p>
                 </div>
             </div>
@@ -398,8 +399,8 @@ class SecurityNotifications {
             $headers = [
                 'MIME-Version: 1.0',
                 'Content-type: text/html; charset=UTF-8',
-                'From: SmartVote Security <security@smartvote.system>',
-                'Reply-To: noreply@smartvote.system',
+                'From: ' . get_security_from_address($this->pdo),
+                'Reply-To: ' . get_security_reply_to(),
                 'X-Mailer: PHP/' . phpversion(),
                 'X-Priority: 1',
                 'Importance: High'

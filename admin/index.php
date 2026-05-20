@@ -92,7 +92,7 @@ exit;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartVote Admin Portal </title>
+    <title><?php echo h(get_system_name($pdo)); ?> Admin Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -137,7 +137,7 @@ exit;
                         </svg>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900">SmartVote System</h1>
+                        <h1 class="text-2xl font-bold text-gray-900"><?php echo h(get_system_name($pdo)); ?> System</h1>
                         <p class="text-sm text-gray-600">Digital Voting Platform</p>
                     </div>
     </div>

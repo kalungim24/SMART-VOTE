@@ -8,6 +8,39 @@ function h(?string $value): string {
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
+function get_system_setting(PDO $pdo, string $key, string $default = ''): string {
+    $stmt = $pdo->prepare("SELECT setting_value FROM system_settings WHERE setting_key = ? LIMIT 1");
+    $stmt->execute([$key]);
+    $value = $stmt->fetchColumn();
+    return $value !== false ? (string)$value : $default;
+}
+
+function update_system_setting(PDO $pdo, string $key, string $value): bool {
+    $stmt = $pdo->prepare("INSERT INTO system_settings (setting_key, setting_value, updated_at) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+    return $stmt->execute([$key, $value]);
+}
+
+function get_system_name(PDO $pdo, string $default = 'SmartLonda'): string {
+    $name = get_system_setting($pdo, 'system_name', $default);
+    return trim($name) !== '' ? $name : $default;
+}
+
+function set_system_name(PDO $pdo, string $systemName): bool {
+    return update_system_setting($pdo, 'system_name', trim($systemName));
+}
+
+function get_system_email_domain(): string {
+    return 'smartlonda.system';
+}
+
+function get_security_from_address(PDO $pdo): string {
+    return 'SmartLonda Security <security@' . get_system_email_domain() . '>';
+}
+
+function get_security_reply_to(): string {
+    return 'noreply@' . get_system_email_domain();
+}
+
 function current_active_election(PDO $pdo): ?array {
     // Use the new ElectionManager for better status handling
     require_once __DIR__ . '/election_manager.php';

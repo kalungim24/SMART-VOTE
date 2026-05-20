@@ -24,18 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         try {
             // Update system settings
-            $settings = [
-                'system_name' => $systemName,
-                'system_description' => $systemDescription,
-                'admin_email' => $adminEmail,
-                'timezone' => $timezone,
-                'max_votes_per_election' => $maxVotesPerElection
-            ];
-            
-            foreach ($settings as $key => $value) {
-                $stmt = $pdo->prepare("INSERT INTO system_settings (setting_key, setting_value, updated_at) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-                $stmt->execute([$key, $value]);
-            }
+            $systemName = $systemName !== '' ? $systemName : 'SmartLonda';
+            set_system_name($pdo, $systemName);
+            update_system_setting($pdo, 'system_description', $systemDescription);
+            update_system_setting($pdo, 'admin_email', $adminEmail);
+            update_system_setting($pdo, 'timezone', $timezone);
+            update_system_setting($pdo, 'max_votes_per_election', $maxVotesPerElection);
             
             $message = 'System settings updated successfully.';
             $messageType = 'success';
@@ -65,7 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $adminId = $_SESSION['admin_id'] ?? $_SESSION['user_id'] ?? null;
                 
                 if (!$adminId) {
-                    $user = $pdo->prepare("SELECT password FROM admins WHERE id = ?");
+                    $message = 'Error: Unable to identify the current admin user.';
+                    $messageType = 'error';
+                } else {
+                    $user = $pdo->prepare("SELECT password FROM admins WHERE id = ? LIMIT 1");
                     $user->execute([$adminId]);
                     $userData = $user->fetch(PDO::FETCH_ASSOC);
                     
@@ -135,7 +132,7 @@ $dbSize = $pdo->query("
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Settings - SmartVote</title>
+    <title>Admin Settings - <?php echo h(get_system_name($pdo)); ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -190,7 +187,7 @@ $dbSize = $pdo->query("
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">System Name</label>
-                                    <input name="system_name" value="<?php echo htmlspecialchars($settings['system_name'] ?? 'SmartVote'); ?>" 
+                                    <input name="system_name" value="<?php echo htmlspecialchars($settings['system_name'] ?? 'SmartLonda'); ?>" 
                                            placeholder="Enter system name" 
                                            class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent">
                                 </div>

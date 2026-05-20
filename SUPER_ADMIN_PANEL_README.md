@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Super Admin Panel is a dedicated interface for creating and managing administrator accounts in the SmartVote system. This panel provides enhanced security, role-based access control, and a streamlined user experience for system administrators.
+The Super Admin Panel is a dedicated interface for creating and managing administrator accounts in the SmartLonda system. This panel provides enhanced security, role-based access control, and a streamlined user experience for system administrators.
 
 ## Features
 
@@ -32,7 +32,7 @@ mysql -u root -p smart_vote < database/migration_add_admin_roles.sql
 
 ### Step 2: Access the Super Admin Panel
 
-1. Log in to your SmartVote admin account
+1. Log in to your SmartLonda admin account
 2. Navigate to **Admin > Super Admin Panel** in the sidebar
 3. You'll see the admin management dashboard
 

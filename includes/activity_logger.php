@@ -1,6 +1,6 @@
 <?php
 /**
- * Enhanced Real-Time Activity Logger for SmartVote System
+ * Enhanced Real-Time Activity Logger for SmartLonda System
  * Tracks all user actions, system events, and security incidents
  */
 

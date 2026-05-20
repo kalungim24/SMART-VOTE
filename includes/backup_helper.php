@@ -1,6 +1,6 @@
 <?php
 /**
- * Backup Helper Functions for SmartVote System
+ * Backup Helper Functions for SmartLonda System
  */
 
 class BackupHelper {

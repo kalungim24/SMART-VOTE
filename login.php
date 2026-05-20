@@ -96,13 +96,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>SmartVote — Login</title>
+    <title><?php echo h(get_system_name($pdo)); ?> — Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>.kti-input{border:2px solid #e2e8f0}.kti-input:focus{border-color:#1e40af}</style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
     <div class="max-w-md w-full p-8 bg-white rounded-xl shadow">
-        <h1 class="text-2xl font-bold mb-4">SmartVote — Sign In</h1>
+        <h1 class="text-2xl font-bold mb-4"><?php echo h(get_system_name($pdo)); ?> — Sign In</h1>
         <?php if ($error): ?>
             <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>

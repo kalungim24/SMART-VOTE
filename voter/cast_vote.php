@@ -171,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartVote System – School Online Voting</title>
+  <title><?php echo h(get_system_name($pdo)); ?> System – School Online Voting</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { 
@@ -1575,7 +1575,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     function saveDraft() {
       // Save current selections to localStorage
-      localStorage.setItem('smartvote_draft', JSON.stringify(votingData));
+      localStorage.setItem('smartlonda_draft', JSON.stringify(votingData));
       
       // Show feedback
       const btn = document.getElementById('save-draft-btn');
@@ -1598,7 +1598,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     function loadDraft() {
       // Load saved selections from localStorage
-      const saved = localStorage.getItem('smartvote_draft');
+      const saved = localStorage.getItem('smartlonda_draft');
       if (saved) {
         const savedData = JSON.parse(saved);
         

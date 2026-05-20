@@ -1,6 +1,6 @@
 <?php
 /**
- * SmartVote Two-Factor Authentication System
+ * SmartLonda Two-Factor Authentication System
  * Supports SMS, Email, and TOTP (Time-based One-Time Password)
  */
 
@@ -347,9 +347,10 @@ class TwoFactorAuth {
      * Send token via email
      */
     private function sendEmailToken($token, $email) {
-        $subject = "SmartVote Security Code";
+        $systemName = get_system_name($this->pdo);
+        $subject = "{$systemName} Security Code";
         $message = "
-        <h2>SmartVote Security Verification</h2>
+        <h2>{$systemName} Security Verification</h2>
         <p>Your security code is: <strong style='font-size: 18px; color: #0ea5e9;'>$token</strong></p>
         <p>This code expires in " . ($this->tokenLifetime / 60) . " minutes.</p>
         <p>If you didn't request this code, please contact support immediately.</p>
@@ -358,7 +359,7 @@ class TwoFactorAuth {
         $headers = [
             'MIME-Version: 1.0',
             'Content-type: text/html; charset=UTF-8',
-            'From: SmartVote Security <noreply@smartvote.system>',
+            'From: {$systemName} Security <noreply@' . get_system_email_domain() . '>',
             'X-Mailer: PHP/' . phpversion()
         ];
         
@@ -375,7 +376,7 @@ class TwoFactorAuth {
         // - Nexmo/Vonage
         // - AWS SNS
         
-        $message = "SmartVote Security Code: $token. Expires in " . ($this->tokenLifetime / 60) . " minutes.";
+        $message = get_system_name($this->pdo) . " Security Code: $token. Expires in " . ($this->tokenLifetime / 60) . " minutes.";
         
         // For demo purposes, we'll simulate SMS sending
         error_log("SMS to $phone: $message");

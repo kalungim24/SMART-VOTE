@@ -1,6 +1,6 @@
 <?php
 /**
- * SmartVote Security Manager
+ * SmartLonda Security Manager
  * Handles security features like brute force protection, CSRF tokens, etc.
  */
 

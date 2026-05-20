@@ -1,6 +1,6 @@
 <?php
 /**
- * SmartVote Data Encryption System
+ * SmartLonda Data Encryption System
  * Provides field-level encryption for sensitive data
  */
 

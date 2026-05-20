@@ -14,7 +14,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </svg>
           </div>
           <div>
-            <h1 class="text-xl font-bold text-slate-800">SmartVote</h1>
+            <h1 class="text-xl font-bold text-slate-800"><?php echo h(get_system_name($pdo)); ?></h1>
             <p class="text-xs text-slate-500">Digital Voting Platform</p>
           </div>
         </a>

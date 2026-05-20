@@ -258,7 +258,7 @@ function formatFileSize($bytes) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Backup & Logs - SmartVote</title>
+    <title>Backup & Logs - <?php echo h(get_system_name($pdo)); ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {

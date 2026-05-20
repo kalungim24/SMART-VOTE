@@ -1,6 +1,6 @@
 <?php
 /**
- * Logging Helper Functions for SmartVote System
+ * Logging Helper Functions for SmartLonda System
  */
 
 class LoggingHelper {

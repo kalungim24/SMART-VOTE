@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartVote System – School Online Voting</title>
+  <title><?php echo h(get_system_name($pdo)); ?> System – School Online Voting</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { 
@@ -138,9 +138,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <header class="backdrop-blur bg-white/70 border-b">
     <div class="max-w-6xl mx-auto px-4 py-5 flex items-center gap-3">
       <div class="flex items-center gap-3">
-        <img src="../assets/images/logo.svg" class="w-10 h-10" alt="SmartVote" onerror="this.style.display='none'" />
+        <img src="../assets/images/logo.svg" class="w-10 h-10" alt="<?php echo h(get_system_name($pdo)); ?>" onerror="this.style.display='none'" />
         <div>
-          <div class="text-xl font-bold text-slate-800">SmartVote System – School Online Voting</div>
+          <div class="text-xl font-bold text-slate-800"><?php echo h(get_system_name($pdo)); ?> System – School Online Voting</div>
           <div class="text-xs text-slate-500">Voter Portal</div>
         </div>
       </div>
