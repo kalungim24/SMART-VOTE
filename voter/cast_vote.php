@@ -27,28 +27,71 @@ $message = '';
 // Get current election ID
 $electionId = $active['id'];
 
+// Prevent voting again for the current election
+try {
+    $voteCountStmt = $pdo->prepare("SELECT COUNT(*) FROM votes WHERE voter_id = ? AND election_id = ?");
+    $voteCountStmt->execute([$voterId, $electionId]);
+    if ((int)$voteCountStmt->fetchColumn() > 0) {
+        header('Location: confirmation.php');
+        exit;
+    }
+} catch (PDOException $e) {
+    error_log("Error checking voter status: " . $e->getMessage());
+}
+
+// Fetch candidates grouped by position_id for the active election
+$byPosition = [];
+try {
+    $candidatesQuery = "
+        SELECT c.*,
+               COALESCE(p.name, c.position) AS position_name,
+               COALESCE(p.id, c.position_id) AS position_id
+        FROM candidates c
+        LEFT JOIN positions p ON c.position_id = p.id
+        LEFT JOIN election_positions ep ON ep.position_id = COALESCE(p.id, c.position_id)
+        WHERE ep.election_id = ?
+    ";
+
+    try {
+        $pdo->query("SELECT active FROM candidates LIMIT 1");
+        $candidatesQuery .= " AND c.active = 1";
+    } catch (PDOException $e) {
+        // active column doesn't exist, use all candidates
+    }
+
+    $candidatesQuery .= " ORDER BY position_name, c.name";
+    $stmt = $pdo->prepare($candidatesQuery);
+    $stmt->execute([$electionId]);
+    $candidates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("Error fetching candidates: " . $e->getMessage());
+    $candidates = [];
+}
+
+foreach ($candidates as $c) {
+    $positionId = (int)($c['position_id'] ?? 0);
+    $positionName = trim($c['position_name'] ?? '') ?: 'Unknown Position';
+    $positionKey = $positionId > 0 ? (string)$positionId : 'unknown_' . md5($positionName);
+
+    if (!isset($byPosition[$positionKey])) {
+        $byPosition[$positionKey] = [
+            'id' => $positionId,
+            'name' => $positionName,
+            'candidates' => []
+        ];
+    }
+    $byPosition[$positionKey]['candidates'][] = $c;
+}
+
 // Fetch positions the voter has already voted for in this election
 $votedPositions = [];
 try {
-    $votedStmt = $pdo->prepare("SELECT DISTINCT position FROM votes WHERE voter_id = ? AND election_id = ?");
+    $votedStmt = $pdo->prepare("SELECT DISTINCT position_id FROM votes WHERE voter_id = ? AND election_id = ?");
     $votedStmt->execute([$voterId, $electionId]);
     $votedPositions = $votedStmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (PDOException $e) {
     error_log("Error fetching voted positions: " . $e->getMessage());
 }
-
-// Fetch candidates grouped by position (check if active column exists)
-$candidatesQuery = "SELECT * FROM candidates";
-try {
-    $pdo->query("SELECT active FROM candidates LIMIT 1");
-    $candidatesQuery .= " WHERE active = 1";
-} catch (PDOException $e) {
-    // active column doesn't exist, use all candidates
-}
-$candidatesQuery .= " ORDER BY position, name";
-$candidates = $pdo->query($candidatesQuery)->fetchAll();
-$byPosition = [];
-foreach ($candidates as $c) { $byPosition[$c['position']][] = $c; }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate CSRF token
@@ -67,74 +110,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $voteData = [];
             $hasDuplicatePosition = false;
             
+            $positionMap = [];
+            foreach ($byPosition as $positionKey => $positionData) {
+                $positionMap[$positionKey] = [
+                    'id' => $positionData['id'],
+                    'name' => $positionData['name']
+                ];
+            }
+            
             // First, collect all submitted votes by iterating through all POST data
             $submittedVotes = [];
-                foreach ($_POST as $key => $value) {
+            foreach ($_POST as $key => $value) {
                 if (strpos($key, 'choice_') === 0) {
                     // This is a position choice field
-                    $positionHash = substr($key, 7); // Remove 'choice_' prefix
+                    $positionKey = substr($key, 7); // Remove 'choice_' prefix
                     
-                    // Find which position this hash corresponds to
-                    $foundPosition = null;
-                    foreach ($byPosition as $position => $candidates) {
-                        if (md5($position) === $positionHash) {
-                            $foundPosition = $position;
-                                break;
-                        }
+                    if (!isset($positionMap[$positionKey])) {
+                        continue;
                     }
                     
-                    if ($foundPosition) {
-                        // Handle both array and string values
-                        $choices = is_array($value) ? $value : [$value];
-                        $choices = array_filter($choices, function($val) {
-                            return $val !== '' && $val !== null;
-                        });
-                        
-                        if (count($choices) > 1) {
-                    $hasDuplicatePosition = true;
-                            $message = 'Error: Multiple candidates selected for the same position (' . htmlspecialchars($foundPosition) . '). Please select only one candidate per position.';
-                            break; // Break out of foreach loop
-                        }
-                        
-                        if (count($choices) === 1) {
-                            $submittedVotes[$foundPosition] = (int)reset($choices);
-                        }
+                    $foundPositionName = $positionMap[$positionKey]['name'];
+                    $positionId = $positionMap[$positionKey]['id'];
+                    
+                    // Handle both array and string values
+                    $choices = is_array($value) ? $value : [$value];
+                    $choices = array_filter($choices, function($val) {
+                        return $val !== '' && $val !== null;
+                    });
+                    
+                    if (count($choices) > 1) {
+                        $hasDuplicatePosition = true;
+                        $message = 'Error: Multiple candidates selected for the same position (' . htmlspecialchars($foundPositionName) . '). Please select only one candidate per position.';
+                        break; // Break out of foreach loop
+                    }
+                    
+                    if (count($choices) === 1) {
+                        $submittedVotes[$positionKey] = (int)reset($choices);
                     }
                 }
             }
             
             // Now process each submitted vote
-            foreach ($submittedVotes as $position => $choice) {
-                    // Get position ID from position name
-                    $positionStmt = $pdo->prepare("SELECT id FROM positions WHERE name = ?");
-                    $positionStmt->execute([$position]);
-                    $positionData = $positionStmt->fetch();
-                    $positionId = $positionData ? $positionData['id'] : null;
+            foreach ($submittedVotes as $positionKey => $choice) {
+                    if (!isset($positionMap[$positionKey])) {
+                        $hasDuplicatePosition = true;
+                        $message = 'Error: Invalid position selected. Please refresh the page and try again.';
+                        break;
+                    }
+                    
+                    $foundPositionName = $positionMap[$positionKey]['name'];
+                    $positionId = $positionMap[$positionKey]['id'];
                     
                     // Strict check: prevent double voting for the same position
-                    $check = $pdo->prepare("SELECT COUNT(*) FROM votes WHERE voter_id = ? AND position = ? AND election_id = ?");
-                    $check->execute([$voterId, $position, $electionId]);
+                    $check = $pdo->prepare("SELECT COUNT(*) FROM votes WHERE voter_id = ? AND election_id = ? AND (position_id = ? OR position = ?)");
+                    $check->execute([$voterId, $electionId, $positionId, $foundPositionName]);
                     
                     if ((int)$check->fetchColumn() > 0) {
                         $hasDuplicatePosition = true;
-                    $message = 'Error: You have already voted for the position: ' . htmlspecialchars($position) . '. Only one vote per position is allowed.';
+                        $message = 'Error: You have already voted for the position: ' . htmlspecialchars($foundPositionName) . '. Only one vote per position is allowed.';
                         break;
                     }
                     
                     // Validate candidate belongs to this position
-                    $candidateCheck = $pdo->prepare("SELECT COUNT(*) FROM candidates WHERE id = ? AND position = ?");
-                $candidateCheck->execute([$choice, $position]);
+                    $candidateCheck = $pdo->prepare("SELECT COUNT(*) FROM candidates WHERE id = ? AND (position_id = ? OR position = ?)");
+                    $candidateCheck->execute([$choice, $positionId, $foundPositionName]);
                     
                     if ((int)$candidateCheck->fetchColumn() === 0) {
                         $hasDuplicatePosition = true;
-                    $message = 'Error: Invalid candidate selection for position: ' . htmlspecialchars($position) . '. Please refresh the page and try again.';
+                        $message = 'Error: Invalid candidate selection for position: ' . htmlspecialchars($foundPositionName) . '. Please refresh the page and try again.';
                         break;
                     }
                     
                     $voteData[] = [
                         'voter_id' => $voterId,
-                    'candidate_id' => $choice,
-                        'position' => $position,
+                        'candidate_id' => $choice,
+                        'position' => $foundPositionName,
                         'election_id' => $electionId,
                         'position_id' => $positionId
                     ];
@@ -147,11 +197,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 foreach ($voteData as $vote) {
                     $ins = $pdo->prepare("INSERT INTO votes (voter_id, candidate_id, position, election_id, position_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
                     $ins->execute([$vote['voter_id'], $vote['candidate_id'], $vote['position'], $vote['election_id'], $vote['position_id']]);
-                }
-                
-                // Mark voter as having voted at least once
-                if (!empty($voteData)) {
-                    $pdo->prepare("UPDATE voters SET has_voted = 1 WHERE voter_id = ?")->execute([$voterId]);
                 }
                 
                 $pdo->commit();
@@ -301,17 +346,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       
       <form method="post" class="space-y-8" id="voting-form" onsubmit="return validateVoteSubmission(event);">
         <input type="hidden" name="csrf_token" value="<?php echo $security->generateCSRFToken(); ?>">
-        <?php foreach ($byPosition as $position => $list): ?>
+        <?php foreach ($byPosition as $positionKey => $positionData): ?>
           <?php 
+          $positionId = $positionData['id'];
+          $position = $positionData['name'];
+          $list = $positionData['candidates'];
+
           // Check if voter has already voted for this position
-          $hasVoted = in_array($position, $votedPositions);
+          $hasVoted = in_array($positionId, $votedPositions, true);
           
           // Get the candidate they voted for
           $votedCandidate = null;
           if ($hasVoted) {
               try {
-                  $votedStmt = $pdo->prepare("SELECT candidate_id FROM votes WHERE voter_id = ? AND election_id = ? AND position = ? LIMIT 1");
-                  $votedStmt->execute([$voterId, $electionId, $position]);
+                  $votedStmt = $pdo->prepare("SELECT candidate_id FROM votes WHERE voter_id = ? AND election_id = ? AND (position_id = ? OR position = ?) LIMIT 1");
+                  $votedStmt->execute([$voterId, $electionId, $positionId, $position]);
                   $votedCandidateId = $votedStmt->fetchColumn();
                   if ($votedCandidateId) {
                       $candidateStmt = $pdo->prepare("SELECT name FROM candidates WHERE id = ?");
@@ -383,7 +432,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       
                       <!-- Checkbox -->
                       <div class="flex-shrink-0 mr-4">
-                        <input type="checkbox" name="<?php echo 'choice_' . md5($position); ?>" value="<?php echo (int)$c['id']; ?>" id="candidate-<?php echo (int)$c['id']; ?>" class="candidate-checkbox w-5 h-5 text-blue-600 border-2 border-slate-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer transition-all duration-200" onchange="handleCandidateCheckbox(this, '<?php echo md5($position); ?>'); updateVoteProgress(); highlightSelection(this); persistSelection(this); validateOneSelection(this); updatePositionStatus(this);" onclick="updatePositionStatus(this);" aria-describedby="candidate-<?php echo (int)$c['id']; ?>-description" />
+                        <input type="checkbox" name="<?php echo 'choice_' . h($positionKey); ?>" value="<?php echo (int)$c['id']; ?>" id="candidate-<?php echo (int)$c['id']; ?>" class="candidate-checkbox w-5 h-5 text-blue-600 border-2 border-slate-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer transition-all duration-200" onchange="handleCandidateCheckbox(this, '<?php echo h($positionKey); ?>'); updateVoteProgress(); highlightSelection(this); persistSelection(this); validateOneSelection(this); updatePositionStatus(this);" onclick="updatePositionStatus(this);" aria-describedby="candidate-<?php echo (int)$c['id']; ?>-description" />
                       </div>
                       
                       <!-- Selection Status Badge -->
@@ -456,7 +505,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </svg>
                     <?php echo count($list); ?> candidate<?php echo count($list) != 1 ? 's' : ''; ?> available
                   </div>
-                  <div class="position-status text-sm font-medium text-slate-500" id="status-<?php echo md5($position); ?>">
+                  <div class="position-status text-sm font-medium text-slate-500" id="status-<?php echo h($positionKey); ?>">
                     <span class="flex items-center text-slate-500">
                       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -854,9 +903,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Position hash mapping from PHP (md5 hash -> position name)
     const positionHashMap = <?php 
       $hashMap = [];
-      foreach ($byPosition as $position => $list) {
-        $hash = md5($position);
-        $hashMap[$hash] = $position;
+      foreach ($byPosition as $positionKey => $positionData) {
+        $hashMap[$positionKey] = $positionData['name'];
       }
       echo json_encode($hashMap);
     ?>;

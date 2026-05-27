@@ -64,17 +64,17 @@ function has_voted_in_active(PDO $pdo, string $voterId, ?string $position = null
         $stmt = $pdo->prepare("
             SELECT COUNT(*) FROM votes 
             WHERE (voter_id = ? OR voter_id_int = ?) 
-            AND (election_id = ? OR election_id IS NULL)
+            AND election_id = ?
         ");
         $stmt->execute([$voterId, $voterId, $election['id']]);
         return (int)$stmt->fetchColumn() > 0;
     }
     
-    // Check if voter has voted for a specific position
+    // Check if voter has voted for a specific position in the active election
     $stmt = $pdo->prepare("
         SELECT COUNT(*) FROM votes 
         WHERE (voter_id = ? OR voter_id_int = ?) 
-        AND (election_id = ? OR election_id IS NULL)
+        AND election_id = ?
         AND (position = ? OR position_id = ?)
     ");
     $stmt->execute([$voterId, $voterId, $election['id'], $position, $position]);

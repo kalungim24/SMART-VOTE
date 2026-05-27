@@ -5,11 +5,9 @@ require_once __DIR__ . '/../includes/functions.php';
 require_role('voter');
 
 $activeElection = current_active_election($pdo);
-$voter = null;
-if (isset($_SESSION['voter_id'])) {
-  $stmt = $pdo->prepare("SELECT has_voted FROM voters WHERE voter_id = ? LIMIT 1");
-  $stmt->execute([$_SESSION['voter_id']]);
-  $voter = $stmt->fetch();
+$voterHasVoted = false;
+if (isset($_SESSION['voter_id']) && $activeElection) {
+  $voterHasVoted = has_voted_in_active($pdo, $_SESSION['voter_id']);
 }
 ?>
 <!DOCTYPE html>
@@ -122,7 +120,7 @@ if (isset($_SESSION['voter_id'])) {
               </div>
               
             <?php elseif ($electionStatus === 'active'): ?>
-              <?php if (!empty($voter) && (int)$voter['has_voted'] === 1): ?>
+              <?php if ($voterHasVoted): ?>
                 <div class="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-xl p-6">
                   <div class="flex items-center">
                     <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mr-4">

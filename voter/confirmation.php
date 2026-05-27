@@ -15,9 +15,10 @@ if ($activeElection) {
         SELECT DISTINCT v.position 
         FROM votes v 
         WHERE v.voter_id = ? 
+          AND v.election_id = ?
         ORDER BY v.position
     ");
-    $stmt->execute([$voterId]);
+    $stmt->execute([$voterId, $activeElection['id']]);
     $voteSummary = $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 ?>
